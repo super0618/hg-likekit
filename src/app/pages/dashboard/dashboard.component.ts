@@ -13,30 +13,49 @@ import { PeopleScreenComponent } from "../../components/peoplescreen/peoplescree
 	styleUrl: "./dashboard.component.scss",
 })
 export class DashboardComponent implements AfterViewInit {
+	fullscreenMode = false;
 	meeting_title = "Business Weekly Meeting";
 	meeting_time = "April 16th, 2023 | 10:00 AM";
 
-	fitScreenPos() {
-		if (window.innerWidth < 1701) {
-			const width = this.mainViewRef?.nativeElement.parentElement.offsetWidth;
-			const height = this.mainViewRef?.nativeElement.parentElement.offsetHeight - this.screenContainerRef?.nativeElement.offsetHeight - 16;
-			if (width > Math.round((height * 16) / 9)) {
-				this.mainViewRef?.nativeElement.style.setProperty("height", height + "px");
-				this.mainViewRef?.nativeElement.style.setProperty("width", "auto");
-			} else {
-				this.mainViewRef?.nativeElement.style.setProperty("width", "100%");
-				this.mainViewRef?.nativeElement.style.setProperty("height", "auto");
-			}
+	toggleMic(event: any) {
+		console.log(this);
+	}
+
+	toggleWebcam(event: any) {
+		console.log(this);
+	}
+
+	toggleSideTab() {
+		const sideTabs: any = document.getElementsByClassName("hg-side-content")[0];
+		if (sideTabs.style.display === "none") {
+			const mainBody: any = document.getElementsByClassName("hg-body")[0];
+			mainBody.style.gridTemplateColumns = "auto 360px";
+			sideTabs.style.display = "block";
 		} else {
-			const width = this.mainViewRef?.nativeElement.parentElement.offsetWidth - this.screenContainerRef?.nativeElement.offsetWidth - 16;
-			const height = this.mainViewRef?.nativeElement.parentElement.offsetHeight;
-			if (width > Math.round((height * 16) / 9)) {
-				this.mainViewRef?.nativeElement.style.setProperty("height", "100%");
-				this.mainViewRef?.nativeElement.style.setProperty("width", "auto");
-			} else {
-				this.mainViewRef?.nativeElement.style.setProperty("width", width + "px");
-				this.mainViewRef?.nativeElement.style.setProperty("height", "auto");
-			}
+			const mainBody: any = document.getElementsByClassName("hg-body")[0];
+			mainBody.style.gridTemplateColumns = "auto";
+			sideTabs.style.display = "none";
+		}
+	}
+
+	toggleFullScreen() {
+		if (this.fullscreenMode) {
+			document.exitFullscreen();
+		} else {
+			document.documentElement.requestFullscreen();
+		}
+		this.fullscreenMode = !this.fullscreenMode;
+	}
+
+	fitScreenPos() {
+		const width = this.mainViewRef?.nativeElement.parentElement.offsetWidth;
+		const height = this.mainViewRef?.nativeElement.parentElement.offsetHeight - this.screenContainerRef?.nativeElement.offsetHeight - 80;
+		if (width > Math.round((height * 16) / 9)) {
+			this.mainViewRef?.nativeElement.style.setProperty("height", height + "px");
+			this.mainViewRef?.nativeElement.style.setProperty("width", "auto");
+		} else {
+			this.mainViewRef?.nativeElement.style.setProperty("width", "100%");
+			this.mainViewRef?.nativeElement.style.setProperty("height", "auto");
 		}
 	}
 

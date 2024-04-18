@@ -46,13 +46,11 @@ section {
         .hg-main-content-wrapper {
             height: calc(100vh - 104px);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 16px;
             position: relative;
-            @media screen and (max-width: 1700px) {
-                flex-direction: column;
-            }
             .hg-main-content {
                 border-radius: 16px;
                 width: 100%;
@@ -62,14 +60,8 @@ section {
             .hg-screen-container {
                 display: flex;
                 gap: 8px;
-                flex-direction: column;
                 flex-wrap: wrap;
-                height: 100%;
-                flex: 0 0 auto;
-                @media screen and (max-width: 1700px) {
-                    flex-direction: row;
-                    height: auto;
-                }
+                margin-bottom: 64px;
             }
             .hg-main-actions {
                 position: absolute;
@@ -105,6 +97,7 @@ section {
                 .hg-actions-right {
                     display: flex;
                     align-items: center;
+                    gap: 8px;
                     justify-content: end;
                 }
             }

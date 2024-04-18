@@ -35,10 +35,10 @@
 					</div>
 				</div>
 				<div class="hg-actions-middle">
-					<button mat-mini-fab color="basic">
+					<button mat-mini-fab color="basic" (click)="toggleMic($event)">
 						<mat-icon>mic</mat-icon>
 					</button>
-					<button mat-mini-fab color="basic">
+					<button mat-mini-fab color="basic" (click)="toggleWebcam($event)">
 						<mat-icon>videocam</mat-icon>
 					</button>
 					<button mat-mini-fab color="warn">
@@ -47,13 +47,16 @@
 					<button mat-mini-fab color="basic">
 						<mat-icon>desktop_mac</mat-icon>
 					</button>
-					<button mat-mini-fab color="basic">
-						<mat-icon>message</mat-icon>
+					<button mat-mini-fab color="basic" (click)="toggleSideTab()">
+						<mat-icon>textsms</mat-icon>
 					</button>
 				</div>
 				<div class="hg-actions-right">
+					<button mat-mini-fab color="basic" (click)="toggleFullScreen()">
+						<mat-icon>fullscreen</mat-icon>
+					</button>
 					<button mat-mini-fab color="basic">
-						<mat-icon>more_horiz</mat-icon>
+						<mat-icon>more_vert</mat-icon>
 					</button>
 				</div>
 			</div>
