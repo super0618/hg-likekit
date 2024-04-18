@@ -1,0 +1,26 @@
+section {
+    width: 100vw;
+    height: 100vh;
+    background-color: #eee;
+    .hg-header {
+        height: 80px;
+    }
+    .hg-body {
+        padding: 300px 0 0 200px;
+        .hg-meeting-create-form {
+            width: 90%;
+            max-width: 350px;
+            h1 {
+                font-weight: 500;
+            }
+            input {
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                padding: 8px 16px;
+                display: block;
+                width: 100%;
+                margin-bottom: 16px;
+            }
+        }
+    }
+}
