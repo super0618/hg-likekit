@@ -35,10 +35,10 @@
 					</div>
 				</div>
 				<div class="hg-actions-middle">
-					<button mat-mini-fab color="basic" (click)="toggleMic($event)">
+					<button mat-mini-fab color="basic" #mic_btn (click)="toggleMic($event, mic_btn)">
 						<mat-icon>mic</mat-icon>
 					</button>
-					<button mat-mini-fab color="basic" (click)="toggleWebcam($event)">
+					<button mat-mini-fab color="basic" #camera_btn (click)="toggleWebcam($event, camera_btn)">
 						<mat-icon>videocam</mat-icon>
 					</button>
 					<button mat-mini-fab color="warn">
@@ -61,7 +61,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="hg-side-content">
+		<div class="hg-side-content" *ngIf="sideTabVisible">
 			<div class="hg-tabs">
 				<button mat-button class="hg-chat-tab">Chat</button>
 				<button mat-button class="hg-participants-tab">

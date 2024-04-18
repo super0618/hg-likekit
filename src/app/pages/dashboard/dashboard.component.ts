@@ -1,4 +1,5 @@
 import { Component, HostListener, ViewChild, ElementRef, AfterViewInit } from "@angular/core";
+import { NgIf } from "@angular/common";
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import { MatBadgeModule } from "@angular/material/badge";
@@ -8,34 +9,33 @@ import { PeopleScreenComponent } from "../../components/peoplescreen/peoplescree
 @Component({
 	selector: "app-dashboard",
 	standalone: true,
-	imports: [MatIconModule, MatButtonModule, MatBadgeModule, PeopleListItemComponent, PeopleScreenComponent],
+	imports: [MatIconModule, MatButtonModule, MatBadgeModule, PeopleListItemComponent, PeopleScreenComponent, NgIf],
 	templateUrl: "./dashboard.component.html",
 	styleUrl: "./dashboard.component.scss",
 })
 export class DashboardComponent implements AfterViewInit {
 	fullscreenMode = false;
+	sideTabVisible = false;
 	meeting_title = "Business Weekly Meeting";
 	meeting_time = "April 16th, 2023 | 10:00 AM";
 
-	toggleMic(event: any) {
+	toggleMic(event: any, self: any) {
 		console.log(this);
 	}
 
-	toggleWebcam(event: any) {
+	toggleWebcam(event: any, self: any) {
 		console.log(this);
 	}
 
 	toggleSideTab() {
-		const sideTabs: any = document.getElementsByClassName("hg-side-content")[0];
-		if (sideTabs.style.display === "none") {
-			const mainBody: any = document.getElementsByClassName("hg-body")[0];
-			mainBody.style.gridTemplateColumns = "auto 360px";
-			sideTabs.style.display = "block";
-		} else {
+		if (this.sideTabVisible) {
 			const mainBody: any = document.getElementsByClassName("hg-body")[0];
 			mainBody.style.gridTemplateColumns = "auto";
-			sideTabs.style.display = "none";
+		} else {
+			const mainBody: any = document.getElementsByClassName("hg-body")[0];
+			mainBody.style.gridTemplateColumns = "auto 360px";
 		}
+		this.sideTabVisible = !this.sideTabVisible;
 	}
 
 	toggleFullScreen() {
