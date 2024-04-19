@@ -23,7 +23,7 @@
 		<div class="hg-main-content-wrapper">
 			<div class="hg-main-content" #mainView></div>
 			<div class="hg-screen-container" #screenContainer>
-				<app-peoplescreen></app-peoplescreen>
+				<!-- <app-peoplescreen></app-peoplescreen> -->
 			</div>
 			<div class="hg-main-actions">
 				<div class="hg-actions-left">
@@ -39,7 +39,7 @@
 					<button mat-mini-fab color="basic" #camera_btn (click)="toggleWebcam($event, camera_btn)">
 						<mat-icon>videocam</mat-icon>
 					</button>
-					<button mat-mini-fab color="warn" (click)="joinRoom()">
+					<button mat-mini-fab color="warn">
 						<mat-icon>call_end</mat-icon>
 					</button>
 					<button mat-mini-fab color="basic">

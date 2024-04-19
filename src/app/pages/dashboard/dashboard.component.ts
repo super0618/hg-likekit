@@ -23,8 +23,50 @@ export class DashboardComponent implements AfterViewInit {
 	@ViewChild("mainView") mainViewRef: ElementRef | null = null;
 	@ViewChild("screenContainer") screenContainerRef: ElementRef | null = null;
 
-	ngAfterViewInit(): void {
+	async ngAfterViewInit(): Promise<void> {
 		this.fitScreenPos();
+		const wsUrl = "wss://hotelgenie-ae73y1rz.livekit.cloud";
+		const resToken = await fetch("http://localhost:3000/getToken");
+		const token = await resToken.text();
+		const room = new Room();
+
+		await room.connect(wsUrl, token);
+		// room.remoteParticipants
+		await room.localParticipant.enableCameraAndMicrophone();
+
+		room.localParticipant.setCameraEnabled(true);
+		// room.localParticipant.setMicrophoneEnabled(true);
+		// await room.localParticipant.setScreenShareEnabled(true);
+
+		const videoTrack = await createLocalVideoTrack({
+			facingMode: "user",
+			resolution: VideoPresets.h720,
+		});
+		// const audioTrack = await createLocalAudioTrack({
+		// 	echoCancellation: true,
+		// 	noiseSuppression: true,
+		// });
+
+		const element = videoTrack.attach();
+		element.setAttribute("width", "100%");
+		element.setAttribute("height", "100%");
+
+		this.mainViewRef!.nativeElement.appendChild(element);
+
+		room.remoteParticipants.forEach((participant) => {
+			participant.getTrackPublications().forEach((trackPub) => {
+				var element = trackPub.track!.attach();
+				element.setAttribute("width", "160px");
+				element.setAttribute("height", "90px");
+				document.getElementsByClassName("hg-screen-container")[0].appendChild(element);
+			});
+		});
+
+		// const videoPublication = await room.localParticipant.publishTrack(videoTrack);
+		// const audioPublication = await room.localParticipant.publishTrack(audioTrack);
+
+		room.on(RoomEvent.TrackSubscribed, this.handleTrackSubscribed);
+		room.on(RoomEvent.TrackUnsubscribed, this.handleTrackUnsubscribed);
 	}
 
 	@HostListener("window:resize", ["$event"])
@@ -32,57 +74,28 @@ export class DashboardComponent implements AfterViewInit {
 		this.fitScreenPos();
 	}
 
-	async joinRoom() {
-		const wsUrl = "wss://hotelgenie-ae73y1rz.livekit.cloud";
-		const resToken = await fetch("http://localhost:3000/getToken");
-		const token = await resToken.text();
-		const room = new Room();
-
-		await room.connect(wsUrl, token);
-		await room.localParticipant.enableCameraAndMicrophone();
-
-		room.localParticipant.setCameraEnabled(true);
-		room.localParticipant.setMicrophoneEnabled(true);
-
-		// await room.localParticipant.setScreenShareEnabled(true);
-
-		const videoTrack = await createLocalVideoTrack({
-			facingMode: "user",
-			resolution: VideoPresets.h720,
-		});
-		const audioTrack = await createLocalAudioTrack({
-			echoCancellation: true,
-			noiseSuppression: true,
-		});
-
-		const element = videoTrack.attach();
-		element.setAttribute("width", "100%");
-		element.setAttribute("height", "100%");
-		this.mainViewRef?.nativeElement.appendChild(element);
-
-		// const videoPublication = await room.localParticipant.publishTrack(videoTrack);
-		// const audioPublication = await room.localParticipant.publishTrack(audioTrack);
-
-		room.on(RoomEvent.TrackSubscribed, this.handleTrackSubscribed);
-	}
-
 	handleTrackSubscribed(track: RemoteTrack, publication: RemoteTrackPublication, participant: RemoteParticipant) {
-		console.log(participant);
 		const element = track.attach();
 		element.setAttribute("width", "160px");
 		element.setAttribute("height", "90px");
-		// document.body.appendChild(element);
+		element.setAttribute("sid", track.sid as string);
 
 		document.getElementsByClassName("hg-screen-container")[0].appendChild(element);
 	}
 
-	toggleMic(event: any, self: any) {
-		console.log(this);
+	handleTrackUnsubscribed(track: RemoteTrack, publication: RemoteTrackPublication, participant: RemoteParticipant) {
+		let delIdx = 0;
+		document.getElementsByClassName("hg-screen-container")[0].childNodes.forEach((childNode: any, i: number) => {
+			if (childNode.sid === track.sid) {
+				delIdx = i;
+			}
+		});
+		document.getElementsByClassName("hg-screen-container")[0].removeChild(document.getElementsByClassName("hg-screen-container")[0].children[delIdx]);
 	}
 
-	toggleWebcam(event: any, self: any) {
-		console.log(this);
-	}
+	toggleMic(event: any, self: any) {}
+
+	toggleWebcam(event: any, self: any) {}
 
 	toggleSideTab() {
 		if (this.sideTabVisible) {
@@ -105,15 +118,14 @@ export class DashboardComponent implements AfterViewInit {
 	}
 
 	fitScreenPos() {
-		console.log(this.screenContainerRef?.nativeElement);
-		const width = this.mainViewRef?.nativeElement.parentElement.offsetWidth;
-		const height = this.mainViewRef?.nativeElement.parentElement.offsetHeight - this.screenContainerRef?.nativeElement.offsetHeight - 80;
+		const width = this.mainViewRef!.nativeElement.parentElement.offsetWidth;
+		const height = this.mainViewRef!.nativeElement.parentElement.offsetHeight - this.screenContainerRef!.nativeElement.offsetHeight - 80;
 		if (width > Math.round((height * 16) / 9)) {
-			this.mainViewRef?.nativeElement.style.setProperty("height", height + "px");
-			this.mainViewRef?.nativeElement.style.setProperty("width", "auto");
+			this.mainViewRef!.nativeElement.style.setProperty("height", height + "px");
+			this.mainViewRef!.nativeElement.style.setProperty("width", "auto");
 		} else {
-			this.mainViewRef?.nativeElement.style.setProperty("width", "100%");
-			this.mainViewRef?.nativeElement.style.setProperty("height", "auto");
+			this.mainViewRef!.nativeElement.style.setProperty("width", "100%");
+			this.mainViewRef!.nativeElement.style.setProperty("height", "auto");
 		}
 	}
 }
