@@ -1,32 +1,159 @@
-import { Component, HostListener, ViewChild, ElementRef, AfterViewInit } from "@angular/core";
+import { Component, HostListener, ViewChild, ElementRef, AfterViewInit, Input, Output, EventEmitter, OnInit, OnDestroy } from "@angular/core";
 import { NgIf } from "@angular/common";
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import { MatBadgeModule } from "@angular/material/badge";
-import { PeopleListItemComponent } from "../../components/peoplelistitem/peoplelistitem.component";
+import { ContactListItemComponent } from "../../components/contactlistitem/contactlistitem.component";
 import { PeopleScreenComponent } from "../../components/peoplescreen/peoplescreen.component";
 import { RemoteParticipant, RemoteTrack, RemoteTrackPublication, Room, RoomEvent, VideoPresets, createLocalAudioTrack, createLocalVideoTrack } from "livekit-client";
 
 @Component({
 	selector: "app-dashboard",
 	standalone: true,
-	imports: [MatIconModule, MatButtonModule, MatBadgeModule, PeopleListItemComponent, PeopleScreenComponent, NgIf],
+	imports: [MatIconModule, MatButtonModule, MatBadgeModule, ContactListItemComponent, PeopleScreenComponent, NgIf],
 	templateUrl: "./dashboard.component.html",
 	styleUrl: "./dashboard.component.scss",
 })
-export class DashboardComponent implements AfterViewInit {
+export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 	fullscreenMode = false;
 	sideTabVisible = false;
 	meeting_title = "Business Weekly Meeting";
 	meeting_time = "April 16th, 2023 | 10:00 AM";
+	voiceAIUrl = "https://example.com/api/"
+
+	@Input() socket = "";
+	ws: WebSocket | null = null;
+	connectionRetry = 0;
+	connectionTimeout = 1000;
+	state = 'connecting';
+
+	@Output() onConnectionChangeSocket = new EventEmitter()
 
 	@ViewChild("mainView") mainViewRef: ElementRef | null = null;
 	@ViewChild("screenContainer") screenContainerRef: ElementRef | null = null;
 
+	async ngOnInit(): Promise<void> {
+		// this.setupWS();
+	}
+
+	async ngOnDestroy(): Promise<void> {
+		// this.ws?.close();
+	}
+
 	async ngAfterViewInit(): Promise<void> {
+	}
+
+	@HostListener("window:resize", ["$event"])
+	onResize(event: any) {
+		this.fitScreenPos();
+	}
+
+	setupWS() {
+        if (!this.socket?.trim()?.length) {
+            return;
+        }
+        const backend = new URL(this.voiceAIUrl);
+        const wsPath = `${backend.protocol === 'https:' ? 'wss:' : 'ws:'}//${backend.host}${this.socket}`;
+        const ws = new WebSocket(wsPath);
+        ws.addEventListener('message', (message) => {
+            try {
+                const data = JSON.parse(message.data);
+                this.onMessage(data);
+            }
+            catch (e) {
+                console.info({ message, e }, 'bad data');
+            }
+        });
+        ws.addEventListener('error', (error) => {
+            console.info({ error }, 'WebSocket error');
+            this.onConnectionChange('closed', error);
+        });
+        ws.addEventListener('close', (close) => {
+            console.info({ close }, 'WebSocket close');
+            this.onConnectionChange('closed', close);
+        });
+        ws.addEventListener('open', (open) => {
+            console.info({ open }, 'WebSocket open');
+            this.onConnectionChange('connected', open);
+        });
+        this.ws = ws;
+        this.checkWebSocketState(ws);
+        this.connectionRetry++;
+    }
+
+	onMessage(message: any) {
+        console.info({ message }, 'got message');
+    }
+
+	onConnectionChange(state: any, data: any) {
+        this.state = state;
+        this.onConnectionChangeSocket.emit({
+            state, data
+        });
+    }
+
+	checkWebSocketState(ws: any) {
+        // Check the readyState property of the WebSocket object
+        switch (ws.readyState) {
+            case WebSocket.CONNECTING:
+                console.log('WebSocket is connecting...');
+                if (!this.connectionRetry) {
+                    this.onConnectionChange('connecting', open);
+                }
+                // if (this.connectionRetry < 3) {
+                //     setTimeout(() => {
+                //         if (this.state !== 'connected') {
+                //             this.setupWS();
+                //         }
+                      
+                //     }, this.connectionTimeout)
+                // } else {
+                //     if (this.ws.readyState !== this.ws.OPEN)
+                //         // this.ws.close();
+                // }
+                break;
+            case WebSocket.OPEN:
+                console.log('WebSocket is open and connected.');
+                this.onConnectionChange('connected', open);
+                break;
+            case WebSocket.CLOSING:
+                console.log('WebSocket is closing...');
+                this.onConnectionChange('closed', open);
+                break;
+            case WebSocket.CLOSED:
+                console.log('WebSocket is closed.');
+                this.onConnectionChange('closed', open);
+                break;
+            default:
+                console.log('Unknown WebSocket state.');
+        }
+    }
+
+	handleTrackSubscribed(track: RemoteTrack, publication: RemoteTrackPublication, participant: RemoteParticipant) {
+		const element = track.attach();
+		element.setAttribute("width", "160px");
+		element.setAttribute("height", "90px");
+		element.setAttribute("sid", track.sid as string);
+
+		document.getElementsByClassName("hg-screen-container")[0].appendChild(element);
+	}
+
+	handleTrackUnsubscribed(track: RemoteTrack, publication: RemoteTrackPublication, participant: RemoteParticipant) {
+		let delIdx = 0;
+		document.getElementsByClassName("hg-screen-container")[0].childNodes.forEach((childNode: any, i: number) => {
+			if (childNode.sid === track.sid) {
+				delIdx = i;
+			}
+		});
+		document.getElementsByClassName("hg-screen-container")[0].removeChild(document.getElementsByClassName("hg-screen-container")[0].children[delIdx]);
+	}
+
+	toggleMic(event: any, self: any) {}
+
+	async toggleWebcam(event: any, self: any): Promise<void> {
 		this.fitScreenPos();
 		const wsUrl = "wss://hotelgenie-ae73y1rz.livekit.cloud";
-		const resToken = await fetch("http://localhost:3000/getToken");
+		const resToken = await fetch("https://livekit-backend.phonegenie.app/getToken");
 		const token = await resToken.text();
 		const room = new Room();
 
@@ -69,34 +196,6 @@ export class DashboardComponent implements AfterViewInit {
 		room.on(RoomEvent.TrackUnsubscribed, this.handleTrackUnsubscribed);
 	}
 
-	@HostListener("window:resize", ["$event"])
-	onResize(event: any) {
-		this.fitScreenPos();
-	}
-
-	handleTrackSubscribed(track: RemoteTrack, publication: RemoteTrackPublication, participant: RemoteParticipant) {
-		const element = track.attach();
-		element.setAttribute("width", "160px");
-		element.setAttribute("height", "90px");
-		element.setAttribute("sid", track.sid as string);
-
-		document.getElementsByClassName("hg-screen-container")[0].appendChild(element);
-	}
-
-	handleTrackUnsubscribed(track: RemoteTrack, publication: RemoteTrackPublication, participant: RemoteParticipant) {
-		let delIdx = 0;
-		document.getElementsByClassName("hg-screen-container")[0].childNodes.forEach((childNode: any, i: number) => {
-			if (childNode.sid === track.sid) {
-				delIdx = i;
-			}
-		});
-		document.getElementsByClassName("hg-screen-container")[0].removeChild(document.getElementsByClassName("hg-screen-container")[0].children[delIdx]);
-	}
-
-	toggleMic(event: any, self: any) {}
-
-	toggleWebcam(event: any, self: any) {}
-
 	toggleSideTab() {
 		if (this.sideTabVisible) {
 			const mainBody: any = document.getElementsByClassName("hg-body")[0];
@@ -106,6 +205,7 @@ export class DashboardComponent implements AfterViewInit {
 			mainBody.style.gridTemplateColumns = "auto 360px";
 		}
 		this.sideTabVisible = !this.sideTabVisible;
+		this.fitScreenPos()
 	}
 
 	toggleFullScreen() {

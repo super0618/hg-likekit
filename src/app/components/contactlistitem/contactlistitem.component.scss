@@ -1,37 +1,35 @@
-.hg-people-listitem {
+.hg-contact-listitem {
     display: flex;
     align-items: center;
     gap: 8px;
     margin-bottom: 12px;
-    .hg-people-listitem-avatar {
-        flex: 0 0 48px;
-        border-radius: 50%;
-        width: 48px;
-        height: 48px;
-    }
-    .hg-people-listitem-body{
+    .hg-contact-listitem-body{
         flex: 1 1 auto;
-        .hg-people-listitem-name{
+        .hg-contact-listitem-name{
             color: #fff;
             font-weight: 500;
             margin-bottom: 0;
         }
-        .hg-people-listitem-role{
+        .hg-contact-listitem-role{
             color: #aaa;
             margin-bottom: 0;
         }
-    }
-    .hg-people-listitem-action {
+        }
+    .hg-contact-listitem-action {
         flex: 0 0 40px;
         button {
-            border: 1px solid #fff;
             background-color: transparent;
-            color: #fff;
             width: 32px;
             height: 32px;
             display: grid;
             place-items: center;
             border-radius: 50%;
+            color: #24A6AF;
+            mat-icon {
+                font-size: 20px;
+                display: grid;
+                place-items: center;
+            }
         }
     }
 }

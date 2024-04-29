@@ -1,0 +1,56 @@
+stages:
+  - npm-install
+  - deploy
+npm-install:
+  stage: npm-install
+  image: node:18.12.0-alpine
+  variables:
+    ENVIRONMENT: 'staging'
+    HG_ENV: '-'
+  script:
+    - cd server
+    - echo "Deploying to $ENVIRONMENT"
+    - export PATH=/path/to/git/bin:$PATH
+    - apk add --update git
+    - git --version
+    - cat ${APP_ENV} > .env
+    - ls -lah
+    - npm cache clean -f
+    - rm -rf node_modules
+    - ls
+    - npm -v
+    - node -v
+    - git --version
+    - npm i
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR/server/.env
+      - $CI_PROJECT_DIR/server/node_modules
+
+deploy:
+  stage: deploy
+  image:
+    name: alpine:latest
+    entrypoint: ['']
+  variables:
+    HG_SERVER: '-'
+  before_script:
+    - echo "Setting up SSH ..."
+    - 'which ssh-agent || ( apk add openssh )'
+    - eval $(ssh-agent -s)
+    - ssh-add <(cat "$HG_SSH_KEY")
+    - mkdir -p ~/.ssh
+    - 'echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    - ls -lah ~/.ssh/
+    - cat ~/.ssh/config
+    - ls -lah
+    - chmod u+x server/.hg-deploy.sh
+    - 'which rsync || ( apk add rsync )'
+  script:
+    - echo "rsync ..."
+    - rsync -avPz --delete --quiet --exclude '.git' . $HG_USER@$HG_SERVER:./app/
+    - echo "starting app ..."
+    - ssh $HG_USER@$HG_SERVER 'bash -s' < server/.hg-deploy.sh
+  dependencies:
+    - npm-install
+

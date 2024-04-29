@@ -2,7 +2,9 @@
 
 This is video conference app using Angular and Livekit.
 
-## Get started
+## Run Frontend
+
+Angular v17.13.0 (require Node v18)
 
 ### Clone the repo
 
@@ -35,3 +37,25 @@ These are the most useful commands defined in `package.json`:
 These are the test-related scripts:
 
 * `npm test` - builds the application and runs Intern tests (both unit and functional) one time.
+
+## Run Backend
+
+Node v16.15.0
+
+```shell
+nvm install 16.15.0
+nvm use 16.15.0
+
+cd server
+npm install
+node index.js
+```
+
+- APIs
+
+/getToken\
+METHOD      POST\
+RESPONSE    string(token)
+
+* pipeline auto dploys to https://livekit-backend.phonegenie.app/
+* direct access: http://34.106.7.178/
