@@ -1,0 +1,10 @@
+{
+    "outbound_address": "hotelritz.amzn.phonegenie.app",
+    "outbound_number": "7774",
+    "outbound_username": "7774",
+    "outbound_password": "702266480",
+    "inbound_addresses": [],
+    "inbound_numbers_regex": [],
+    "inbound_username": "",
+    "inbound_password": ""
+}

@@ -1,0 +1,9 @@
+{
+	"trunk_ids": ["ST_c8npL5CAGYbd"],
+	"rule": {
+		"dispatchRuleDirect": {
+			"roomName": "Business Weekly Meeting",
+			"pin": ""
+		}
+	}
+}

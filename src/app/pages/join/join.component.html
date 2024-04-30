@@ -1,0 +1,10 @@
+<section>
+    <div class="hg-modal">
+        <h1>Create a Room</h1>
+        <label>Room Name</label>
+        <input class="hg-input" (keyup)="setRoomName($event)" />
+        <label>Participant Name</label>
+        <input class="hg-input" (keyup)="setParticipantName($event)" />
+        <button mat-flat-button color="primary" (click)="handleClick()">Create</button>
+    </div>
+</section>

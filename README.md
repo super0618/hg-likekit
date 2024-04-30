@@ -51,11 +51,12 @@ npm install
 node index.js
 ```
 
-- APIs
+### APIs
 
-/getToken\
-METHOD      POST\
-RESPONSE    string(token)
+- /getToken\
+METHOD POST\
+REQUEST room_name(string), participant_name(string)\
+RESPONSE string(token)
 
 * pipeline auto dploys to https://livekit-backend.phonegenie.app/
 * direct access: http://34.106.7.178/

@@ -1,14 +1,19 @@
-import { Routes } from "@angular/router";
-import { LandingComponent } from "./pages/landing/landing.component";
-import { DashboardComponent } from "./pages/dashboard/dashboard.component";
+import { Routes } from '@angular/router';
+import { JoinComponent } from './pages/join/join.component';
+import { RoomComponent } from './pages/room/room.component';
 
 export const routes: Routes = [
-	{
-		path: "",
-		component: LandingComponent,
-	},
-	{
-		path: "dashboard",
-		component: DashboardComponent,
-	},
+  {
+    path: '',
+    children: [
+      {
+        path: '',
+        component: JoinComponent,
+      },
+      {
+        path: ':roomId',
+        component: RoomComponent,
+      },
+    ],
+  },
 ];
